@@ -1,0 +1,122 @@
+services:
+  test: &default
+    build:
+      context: .
+      target: base
+    env_file:
+      - ./env/common.env
+      - ./env/dev.env
+    volumes:
+      - ./:/app
+
+  api:
+    build:
+      context: .
+      target: api
+    container_name: segmentation-api-api
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./env/common.env
+      - ./env/dev.env
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  api-dev:
+    <<: *default
+    container_name: segmentation-api-api-dev
+    ports:
+      - "8080:8080"
+    entrypoint: ["air", "-c", ".air-api.toml"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  processor:
+    build:
+      context: .
+      target: processor
+    container_name: segmentation-api-processor
+    env_file:
+      - ./env/common.env
+      - ./env/dev.env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  processor-dev:
+    build:
+      context: .
+      target: base
+    container_name: segmentation-api-processor-dev
+    env_file:
+      - ./env/common.env
+      - ./env/dev.env
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./:/app
+      - ./logs:/app/logs
+      - ./data:/app/data
+    working_dir: /app
+    entrypoint: ["air", "-c", ".air-processor.toml"]
+    restart: unless-stopped
+    profiles:
+      - dev
+
+  processor-run:
+    build:
+      context: .
+      target: base
+    container_name: segmentation-api-processor-run
+    env_file:
+      - ./env/common.env
+      - ./env/dev.env
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    command: /app/processor
+    profiles:
+      - dev
+
+  db:
+      image: mariadb:10.11
+      container_name: segmentation-api-db
+      env_file:
+        - ./env/db.env
+      ports:
+        - "3306:3306"
+      volumes:
+        - db-data:/var/lib/mysql
+      healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+        interval: 5s
+        timeout: 3s
+        retries: 10
+      restart: unless-stopped
+
+  adminer:
+    image: adminer:latest
+    container_name: segmentation-api-adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  db-data:

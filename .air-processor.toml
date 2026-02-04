@@ -1,0 +1,5 @@
+[build]
+entrypoint="tmp/processor"
+cmd = "go build -o tmp/processor cmd/processor/main.go"
+poll = true
+poll_interval = 500 # Adjust frequency as needed (e.g., "1s")

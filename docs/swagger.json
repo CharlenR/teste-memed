@@ -1,0 +1,118 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Segmentation API",
+    "description": "API de segmentações com worker de processamento de arquivos",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Charlen Rodrigues"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Check if the API is running and healthy",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "healthy"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}/segmentations": {
+      "get": {
+        "summary": "Get User Segmentations",
+        "description": "Retrieve all segmentations for a specific user",
+        "operationId": "getUserSegmentations",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "segmentations": {
+                  "type": "object",
+                  "properties": {
+                    "specialties": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/Segmentation"
+                      }
+                    },
+                    "drugs": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/Segmentation"
+                      }
+                    },
+                    "patients": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/Segmentation"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user ID"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Segmentation": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Segmentation name"
+        },
+        "data": {
+          "type": "object",
+          "description": "Additional segmentation data"
+        }
+      }
+    }
+  }
+}

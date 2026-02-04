@@ -1,0 +1,55 @@
+Requisitos da Etapa 2: API de Consulta
+Endpoint
+GET /users/{user_id
+}/segmentations
+Resposta Esperada
+{
+    "user_id": 1,
+    "segmentations": {
+        "specialties": [
+            {
+                "name": "Cardiologia",
+                "data": {
+                    "experience_years": 5,
+                    "certification": "CRM123"
+                }
+Teste Técnico Memed 2
+            },
+            {
+                "name": "Cirurgia Vascular",
+                "data": {
+                    "experience_years": 8,
+                    "certification": "CRM789"
+                }
+            }
+        ],
+        "drugs": [
+            {
+                "name": "Alopáticos",
+                "data": {
+                    "quantity": "200"
+                }
+            },
+            {
+                "name": "Dermocosméticos",
+                "data": {
+                    "quantity": "50"
+                }
+            }
+        ],
+        "patients": [
+            {
+                "name": "0 to 5 years",
+                "data": {
+                    "quantity": "10"
+                }
+            },
+            {
+                "name": "5 to 10 years",
+                "data": {
+                    "quantity": "100"
+                }
+            }
+        ]
+    }
+}

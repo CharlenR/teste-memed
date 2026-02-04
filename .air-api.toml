@@ -1,0 +1,5 @@
+[build]
+cmd = "go build -o tmp/api cmd/api/main.go"
+entrypoint = "tmp/api"
+poll = true
+poll_interval = 500 # Adjust frequency as needed (e.g., "1s")
