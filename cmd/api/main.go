@@ -1,18 +1,18 @@
 package main
 
 import (
+	"log"
 	"os"
+	"time"
 
 	"segmentation-api/internal/api"
 	lgr "segmentation-api/internal/logger"
-	"segmentation-api/internal/models"
 	mysqlRepo "segmentation-api/internal/repository/mysql"
 	"segmentation-api/internal/service"
 
 	_ "segmentation-api/docs" // Swagger documentation
 
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+	gormLogger "gorm.io/gorm/logger"
 )
 
 func main() {
@@ -23,20 +23,26 @@ func main() {
 	}
 	defer file.Close()
 
-	// Database connection
-	dsn := os.Getenv("DATABASE_URL")
-	if dsn == "" {
-		dsn = "root:password@tcp(localhost:3306)/segmentation?charset=utf8mb4&parseTime=true"
-	}
+	// GORM logger for database
+	gormLog := gormLogger.New(
+		log.New(log_.Writer(), log_.Prefix(), log_.Flags()),
+		gormLogger.Config{
+			SlowThreshold:             time.Second,
+			LogLevel:                  gormLogger.Warn,
+			IgnoreRecordNotFoundError: true,
+			Colorful:                  false,
+		},
+	)
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	// Database connection using NewMySQL helper
+	db, err := mysqlRepo.NewMySQL(gormLog)
 	if err != nil {
 		log_.Printf("Failed to connect to database: %v", err)
 		panic("failed to connect to database")
 	}
 
 	// Run migrations
-	if err := db.AutoMigrate(&models.Segmentation{}); err != nil {
+	if err := mysqlRepo.RunMigrations(db); err != nil {
 		log_.Printf("Failed to run migrations: %v", err)
 		panic("failed to run migrations")
 	}
