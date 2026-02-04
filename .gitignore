@@ -35,5 +35,5 @@ tmp
 logs
 data
 .DS_Store
-./api
-./processor
+/api
+/processor
