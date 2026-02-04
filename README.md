@@ -332,17 +332,36 @@ segmentation-api/
 
 ### Environment Variables
 
+Configuration is managed through three environment files in `./env/`:
+
+**`common.env`** - Shared across all services:
 ```bash
-# API Configuration
-API_PORT=8080
-
-# Database Configuration
-DATABASE_URL=segmentation:segmentation@tcp(db:3306)/segmentation?charset=utf8mb4&parseTime=true
-
-# Processor Configuration
-DATAFILEPATH=/app/data/data.csv
 LOG_DIR=/app/logs
+DATAFILEPATH=/app/data/data.csv
 ```
+
+**`db.env`** - MariaDB container initialization:
+```bash
+MARIADB_ROOT_PASSWORD=root
+MARIADB_DATABASE=segmentation
+MARIADB_USER=segmentation
+MARIADB_PASSWORD=segmentation
+```
+
+**`dev.env`** - Development environment:
+```bash
+# Database connection (API and processor use these to build connection string)
+DB_HOST=db
+DB_PORT=3306
+DB_USER=segmentation
+DB_PASSWORD=segmentation
+DB_NAME=segmentation
+
+# API Server
+API_PORT=8080
+```
+
+**Note:** The API and processor both use individual `DB_*` variables to construct the database connection string internally via `mysql.NewMySQL()`. There is no separate `DATABASE_URL` - it's built from these components.
 
 ### Key Docker Commands
 
