@@ -451,13 +451,6 @@ go test -run TestName ./...
 
 ---
 
-## 📚 Additional Documentation
-
-For comprehensive details, see:
-- **OLD_README.md** - Extended documentation with all features and troubleshooting
-
----
-
 ## 🤝 Quick Help
 
 **Database won't connect?**
