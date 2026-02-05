@@ -28,7 +28,7 @@ func main() {
 		log.New(log_.Writer(), log_.Prefix(), log_.Flags()),
 		gormLogger.Config{
 			SlowThreshold:             time.Second,
-			LogLevel:                  gormLogger.Warn,
+			LogLevel:                  gormLogger.Error,
 			IgnoreRecordNotFoundError: true,
 			Colorful:                  false,
 		},

@@ -51,7 +51,10 @@ func main() {
 	defer logFile.Close()
 
 	// Write to both stdout (for docker-compose logs) and file
-	multiWriter := io.MultiWriter(os.Stdout, logFile)
+	multiWriter := io.Writer(logFile)
+	if os.Getenv("PRINTLOG") == "true" {
+		multiWriter = io.MultiWriter(os.Stdout, logFile)
+	}
 	log.SetOutput(multiWriter)
 
 	// logger base (both stdout and file)
