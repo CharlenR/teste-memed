@@ -136,23 +136,23 @@ func Run(ctx context.Context, svc *service.SegmentationService, logger *log.Logg
 				switch result {
 				case repository.UpsertInserted:
 					atomic.AddUint64(&totalProcessed, 1)
-					logger.Printf(
-						"upsert_inserted worker=%d user_id=%d seg_type=%s seg_name=%s",
-						workerID,
-						r.userID,
-						r.segType,
-						r.name,
-					)
+					// logger.Printf(
+					// 	"upsert_inserted worker=%d user_id=%d seg_type=%s seg_name=%s",
+					// 	workerID,
+					// 	r.userID,
+					// 	r.segType,
+					// 	r.name,
+					// )
 
 				case repository.UpsertUpdated:
 					atomic.AddUint64(&totalUpdated, 1)
-					logger.Printf(
-						"upsert_updated worker=%d user_id=%d seg_type=%s seg_name=%s",
-						workerID,
-						r.userID,
-						r.segType,
-						r.name,
-					)
+					// logger.Printf(
+					// 	"upsert_updated worker=%d user_id=%d seg_type=%s seg_name=%s",
+					// 	workerID,
+					// 	r.userID,
+					// 	r.segType,
+					// 	r.name,
+					// )
 
 				case repository.UpsertNoOp:
 					atomic.AddUint64(&totalDuplicates, 1)

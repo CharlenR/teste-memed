@@ -3,6 +3,10 @@ package mysql
 import (
 	"context"
 	"log"
+
+	// "log"
+	"gorm.io/gorm/clause"
+
 	"segmentation-api/internal/models"
 	"segmentation-api/internal/repository"
 	"time"
@@ -38,46 +42,66 @@ func (r *segmentationRepository) Upsert(
 	s *models.Segmentation,
 ) (repository.UpsertResult, error) {
 
-	// Check if record exists
-	var existing models.Segmentation
-	existsQuery := r.db.WithContext(ctx).
-		Where("user_id = ? AND segmentation_type = ? AND segmentation_name = ?",
-			s.UserID, s.SegmentationType, s.SegmentationName).
-		First(&existing)
+	// tx := r.db.WithContext(ctx).
+	// 	Clauses(clause.OnConflict{
+	// 		Columns: []clause.Column{
+	// 			{Name: "user_id"},
+	// 			{Name: "segmentation_type"},
+	// 			{Name: "segmentation_name"},
+	// 		},
+	// 		DoUpdates: clause.Assignments(map[string]interface{}{
+	// 			"data":       s.Data,
+	// 			"updated_at": time.Now().Unix(),
+	// 		}),
+	// 	}).
+	// 	Create(s)
 
-	if existsQuery.Error == gorm.ErrRecordNotFound {
-		// Record doesn't exist, insert it
-		tx := r.db.WithContext(ctx).Create(s)
-		if tx.Error != nil {
-			log.Printf("upsert_debug user_id=%d seg_type=%s seg_name=%s error=%v",
-				s.UserID, s.SegmentationType, s.SegmentationName, tx.Error)
-			return repository.UpsertNoOp, tx.Error
-		}
-		log.Printf("upsert_debug user_id=%d seg_type=%s seg_name=%s action=inserted",
-			s.UserID, s.SegmentationType, s.SegmentationName)
-		return repository.UpsertInserted, nil
-	}
-
-	if existsQuery.Error != nil {
-		log.Printf("upsert_debug user_id=%d seg_type=%s seg_name=%s error=%v",
-			s.UserID, s.SegmentationType, s.SegmentationName, existsQuery.Error)
-		return repository.UpsertNoOp, existsQuery.Error
-	}
-
-	// Record exists, update it
-	s.ID = existing.ID
-	tx := r.db.WithContext(ctx).Model(s).Updates(map[string]interface{}{
-		"data":       s.Data,
-		"updated_at": time.Now().Unix(),
-	})
+	tx := r.db.WithContext(ctx).Exec(`
+	INSERT INTO segmentations
+	(user_id, segmentation_type, segmentation_name, data, updated_at)
+	VALUES (?, ?, ?, ?, ?)
+	ON DUPLICATE KEY UPDATE
+	data = VALUES(data),
+	updated_at = VALUES(updated_at)
+	`,
+		s.UserID,
+		s.SegmentationType,
+		s.SegmentationName,
+		s.Data,
+		time.Now().Unix(),
+	)
 
 	if tx.Error != nil {
-		log.Printf("upsert_debug user_id=%d seg_type=%s seg_name=%s error=%v",
-			s.UserID, s.SegmentationType, s.SegmentationName, tx.Error)
+		log.Printf(
+			"upsert_error user_id=%d seg_type=%s seg_name=%s error=%v",
+			s.UserID, s.SegmentationType, s.SegmentationName, tx.Error,
+		)
 		return repository.UpsertNoOp, tx.Error
 	}
 
-	log.Printf("upsert_debug user_id=%d seg_type=%s seg_name=%s action=updated",
-		s.UserID, s.SegmentationType, s.SegmentationName)
+	// MySQL trick (important)
+	if tx.RowsAffected == 1 {
+		return repository.UpsertInserted, nil
+	}
 	return repository.UpsertUpdated, nil
+}
+
+func (r *segmentationRepository) BulkUpsert(
+	ctx context.Context,
+	items []models.Segmentation,
+) error {
+
+	return r.db.WithContext(ctx).
+		Clauses(clause.OnConflict{
+			Columns: []clause.Column{
+				{Name: "user_id"},
+				{Name: "segmentation_type"},
+				{Name: "segmentation_name"},
+			},
+			DoUpdates: clause.Assignments(map[string]interface{}{
+				"data":       gorm.Expr("VALUES(data)"),
+				"updated_at": time.Now().Unix(),
+			}),
+		}).
+		Create(&items).Error
 }

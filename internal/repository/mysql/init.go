@@ -44,9 +44,23 @@ func NewMySQL(gormLogger logger.Interface) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	sqlDB.SetMaxOpenConns(50)
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetConnMaxLifetime(time.Hour)
+	// sqlDB.SetMaxOpenConns(50)
+	// sqlDB.SetMaxIdleConns(10)
+	// sqlDB.SetConnMaxLifetime(time.Hour)
+
+	// 2gb
+	// sqlDB.SetMaxOpenConns(80)
+	// sqlDB.SetMaxIdleConns(80)
+	// sqlDB.SetConnMaxLifetime(2 * time.Minute)
+
+	// 4gb
+	// sqlDB.SetMaxOpenConns(32)
+	// sqlDB.SetMaxIdleConns(32)
+	// sqlDB.SetConnMaxLifetime(60 * time.Minute)
+
+	sqlDB.SetMaxOpenConns(32)
+	sqlDB.SetMaxIdleConns(32)
+	sqlDB.SetConnMaxLifetime(30 * time.Second)
 
 	// 👇 garante DB disponível antes de subir worker
 	if err := sqlDB.Ping(); err != nil {

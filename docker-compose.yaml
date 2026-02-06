@@ -22,7 +22,7 @@ services:
     volumes:
       - ./logs:/app/logs
     depends_on:
-      db:
+      mysql-db:
         condition: service_healthy
     restart: unless-stopped
 
@@ -33,7 +33,7 @@ services:
       - "8080:8080"
     entrypoint: ["air", "-c", ".air-api.toml"]
     depends_on:
-      db:
+      mysql-db:
         condition: service_healthy
     restart: unless-stopped
 
@@ -49,7 +49,7 @@ services:
       - ./logs:/app/logs
       - ./data:/app/data
     depends_on:
-      db:
+      mysql-db:
         condition: service_healthy
     restart: unless-stopped
 
@@ -62,7 +62,7 @@ services:
       - ./env/common.env
       - ./env/dev.env
     depends_on:
-      db:
+      mysql-db:
         condition: service_healthy
     volumes:
       - ./:/app
@@ -71,6 +71,11 @@ services:
     working_dir: /app
     entrypoint: ["air", "-c", ".air-processor.toml"]
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'  
+          memory: '128M'    
     profiles:
       - dev
 
@@ -83,16 +88,21 @@ services:
       - ./env/common.env
       - ./env/dev.env
     depends_on:
-      db:
+      mysql-db:
         condition: service_healthy
     volumes:
       - ./logs:/app/logs
       - ./data:/app/data
     command: /app/processor
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'  
+          memory: '2G'
     profiles:
       - dev
 
-  db:
+  maria-db:
       image: mariadb:10.11
       container_name: segmentation-api-db
       env_file:
@@ -100,7 +110,8 @@ services:
       ports:
         - "3306:3306"
       volumes:
-        - db-data:/var/lib/mysql
+        - maria-db-data:/var/lib/mysql
+        - ./configs/my.cnf:/etc/mysql/conf.d/my.cnf:ro        
       healthcheck:
         test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
         interval: 5s
@@ -108,15 +119,41 @@ services:
         retries: 10
       restart: unless-stopped
 
+
+  mysql-db:
+    image: mysql:8.0
+    env_file:
+      - ./env/db.env
+    command:
+      - --default-authentication-plugin=caching_sha2_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-db-data:/var/lib/mysql
+      - ./configs/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro        
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'  
+          memory: '4G'    
+
+
   adminer:
     image: adminer:latest
     container_name: segmentation-api-adminer
     ports:
       - "8081:8080"
     depends_on:
-      db:
+      mysql-db:
         condition: service_healthy
     restart: unless-stopped
 
 volumes:
-  db-data:
+  maria-db-data:
+  mysql-db-data:

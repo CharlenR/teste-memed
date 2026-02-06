@@ -10,6 +10,7 @@ import (
 
 func New() (*log.Logger, *os.File, error) {
 	logDir := os.Getenv("LOG_DIR")
+	logOut := os.Getenv("PRINTLOG")
 	if logDir == "" {
 		logDir = "./logs"
 	}
@@ -25,8 +26,11 @@ func New() (*log.Logger, *os.File, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-
-	multi := io.MultiWriter(os.Stdout, file)
+	var multi io.Writer
+	multi = file
+	if logOut == "true" {
+		multi = io.MultiWriter(os.Stdout, file)
+	}
 
 	logger := log.New(multi, "", log.LstdFlags|log.Lmicroseconds)
 
