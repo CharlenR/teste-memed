@@ -102,23 +102,6 @@ services:
     profiles:
       - dev
 
-  maria-db:
-      image: mariadb:10.11
-      container_name: segmentation-api-db
-      env_file:
-        - ./env/db.env
-      ports:
-        - "3306:3306"
-      volumes:
-        - maria-db-data:/var/lib/mysql
-        - ./configs/my.cnf:/etc/mysql/conf.d/my.cnf:ro        
-      healthcheck:
-        test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
-        interval: 5s
-        timeout: 3s
-        retries: 10
-      restart: unless-stopped
-
 
   mysql-db:
     image: mysql:8.0
@@ -155,5 +138,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  maria-db-data:
   mysql-db-data:

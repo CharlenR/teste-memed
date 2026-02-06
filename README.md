@@ -53,7 +53,7 @@ The application consists of three main components:
 │  └──────────────────────────────────────┘   │
 │                    ↑ ↓                       │
 │  ┌──────────────────────────────────────┐   │
-│  │   MariaDB Database                   │   │
+│  │   MySQL Database                   │   │
 │  │   - Data persistence                 │   │
 │  │   - Transaction support              │   │
 │  └──────────────────────────────────────┘   │
@@ -160,7 +160,7 @@ Response (JSON)
 |-----------|-----------|---------|
 | **Language** | Go | 1.25.6 |
 | **Web Framework** | Gin | Latest |
-| **Database** | MariaDB | 10.11 |
+| **Database** | MySQL | 8.0 |
 | **ORM** | GORM | Latest |
 | **Containerization** | Docker & Docker Compose | 20.10+ |
 | **Hot-Reload** | Air | 1.64.5 |
@@ -183,7 +183,7 @@ docker-compose --version  # 1.29+
 ```bash
 # Check versions
 go version        # 1.19+
-mariadb --version # 10.11+
+mysql --version # 8.0+
 ```
 
 ### Setup Steps
@@ -191,37 +191,38 @@ mariadb --version # 10.11+
 #### Step 1: Clone Repository
 ```bash
 git clone <repository-url>
-cd segmentation-api
+cd teste-memed
 ```
 
 #### Step 2: Start Database
 
 **Using Docker (Recommended):**
 ```bash
-docker-compose up db
+docker-compose up mysql-db
 ```
 
-**Local MariaDB:**
+**Local MySQL:**
 ```bash
 # macOS
-brew services start mariadb
+brew services start mysql
 
-# Or Docker container
+# Database environment - MySQL container
 docker run -d \
-  -e MARIADB_ROOT_PASSWORD=root \
-  -e MARIADB_DATABASE=segmentation \
-  -e MARIADB_USER=segmentation \
-  -e MARIADB_PASSWORD=segmentation \
-  -p 3306:3306 \
-  mariadb:10.11
+  -e MYSQL_ROOT_PASSWORD=root \
+  -e MYSQL_DATABASE=segmentation \
+  -e MYSQL_USER=segmentation \
+  -e MYSQL_PASSWORD=segmentation \
+  mysql:8.0
+
 ```
+
 
 #### Step 3: Build & Run
 
 **Using Docker Compose:**
 ```bash
 # Terminal 1: Start all services
-docker-compose up db api-dev
+docker-compose up mysql api-dev
 
 # Terminal 2: View API logs (verify startup)
 docker-compose logs -f api-dev
@@ -254,10 +255,10 @@ curl http://localhost:8080/health
 **API Development:**
 ```bash
 # Terminal 1: Start database
-docker-compose up db
+docker-compose up mysql
 
 # Terminal 2: Start API with Air hot-reload
-docker-compose up db api-dev
+docker-compose up mysql api-dev
 
 # Terminal 3: Edit code
 # Files in ./internal/api/* or ./cmd/api/*
@@ -267,10 +268,10 @@ docker-compose up db api-dev
 **Processor Development:**
 ```bash
 # Terminal 1: Start database
-docker-compose up db
+docker-compose up mysql
 
 # Terminal 2: Start processor-dev container
-docker-compose --profile dev up db processor-dev
+docker-compose --profile dev up mysql processor-dev
 
 # Terminal 3: Run Air inside container
 docker-compose exec processor-dev air -c .air-processor.toml
@@ -340,18 +341,18 @@ LOG_DIR=/app/logs
 DATAFILEPATH=/app/data/data.csv
 ```
 
-**`db.env`** - MariaDB container initialization:
+**`db.env`** - MySQL container initialization:
 ```bash
-MARIADB_ROOT_PASSWORD=root
-MARIADB_DATABASE=segmentation
-MARIADB_USER=segmentation
-MARIADB_PASSWORD=segmentation
+MYSQL_ROOT_PASSWORD=root
+MYSQL_DATABASE=segmentation
+MYSQL_USER=segmentation
+MYSQL_PASSWORD=segmentation
 ```
 
 **`dev.env`** - Development environment:
 ```bash
 # Database connection (API and processor use these to build connection string)
-DB_HOST=db
+DB_HOST=mysql-db
 DB_PORT=3306
 DB_USER=segmentation
 DB_PASSWORD=segmentation
@@ -370,7 +371,7 @@ API_PORT=8080
 docker-compose up
 
 # Start specific services
-docker-compose up db api-dev
+docker-compose up mysql api-dev
 
 # With development profile (includes processor-dev)
 docker-compose --profile dev up
@@ -418,8 +419,8 @@ go test ./... -cover
 
 **Via Adminer (Web UI):**
 - URL: `http://localhost:8081`
-- System: MariaDB
-- Server: `db` (or `localhost` if local)
+- System: MySQL
+- Server: `mysql-db` (or `localhost` if local)
 - User: `segmentation`
 - Password: `segmentation`
 - Database: `segmentation`
@@ -434,19 +435,19 @@ mysql -h localhost -u segmentation -p -D segmentation
 
 **Process CSV Data:**
 ```bash
-docker-compose up db processor
+docker-compose up mysql processor
 ```
 
 **Development API Changes:**
 ```bash
-docker-compose up db api-dev
+docker-compose up mysql api-dev
 # Edit files in internal/api/*
 # Air auto-restarts
 ```
 
 **Development Processor Changes:**
 ```bash
-docker-compose --profile dev up db processor-dev
+docker-compose --profile dev up mysql processor-dev
 docker-compose exec processor-dev air -c .air-processor.toml
 # Edit files in internal/processor/*
 # Air auto-reruns
@@ -474,8 +475,8 @@ go test -run TestName ./...
 
 **Database won't connect?**
 ```bash
-docker-compose logs db
-docker-compose exec db mysql -u root -proot -e "SHOW DATABASES;"
+docker-compose logs mysql-db
+docker-compose exec mysql-db mysql -u root -proot -e "SHOW DATABASES;"
 ```
 
 **Port already in use?**
