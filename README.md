@@ -21,7 +21,7 @@ The application consists of three main components:
 
 ```
 ┌─────────────────────────────────────────────┐
-│         Segmentation API System              │
+│         Segmentation API System             │
 ├─────────────────────────────────────────────┤
 │                                             │
 │  ┌──────────────────────────────────────┐   │
@@ -30,30 +30,30 @@ The application consists of three main components:
 │  │   - User segmentation queries        │   │
 │  │   - RESTful endpoints                │   │
 │  └──────────────────────────────────────┘   │
-│                    ↑ ↓                       │
+│                    ↑ ↓                      │
 │  ┌──────────────────────────────────────┐   │
 │  │   Service Layer (Business Logic)     │   │
 │  │   - Data validation                  │   │
 │  │   - Normalization                    │   │
 │  │   - UPSERT logic                     │   │
 │  └──────────────────────────────────────┘   │
-│                    ↑ ↓                       │
+│                    ↑ ↓                      │
 │  ┌──────────────────────────────────────┐   │
 │  │   Repository Layer (Data Access)     │   │
 │  │   - Database operations              │   │
 │  │   - GORM ORM integration             │   │
 │  └──────────────────────────────────────┘   │
-│                    ↑ ↓                       │
+│                    ↑ ↓                      │
 │  ┌──────────────────────────────────────┐   │
 │  │   CSV Processor (Workers)            │   │
 │  │   - Multi-threaded processing        │   │
 │  │   - CPU-aware workers                │   │
 │  │   - Progress tracking                │   │
-│  │   - 3,600+ records/second            │   │
+│  │   - 30,600+ records/second            │   │
 │  └──────────────────────────────────────┘   │
-│                    ↑ ↓                       │
+│                    ↑ ↓                      │
 │  ┌──────────────────────────────────────┐   │
-│  │   MySQL Database                   │   │
+│  │   MySQL Database                     │   │
 │  │   - Data persistence                 │   │
 │  │   - Transaction support              │   │
 │  └──────────────────────────────────────┘   │
