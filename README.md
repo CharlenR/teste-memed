@@ -499,6 +499,25 @@ docker-compose down -v && docker-compose up
 
 ---
 
+## Test evidences after improving performance
+
+
+Last line of log running containerized sharing 1 vcpu and 128mb ram for worker and 2 vcpu with 2gb of ram for mysql.
+
+```
+2026/02/05 23:46:48.162794 processor_finished 
+  read=1000000 
+  enqueued=1000000 
+  inserted=627880 
+  updated=372120 
+  duplicates=0 
+  failed=0 
+  invalid=0 
+  elapsed=27.337271145s
+2026/02/05 23:46:48.163023 processor_finished_successfully
+```
+
+
 ## 👨‍💻 Author
 
 **Charlen Rodrigues**
