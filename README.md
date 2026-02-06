@@ -49,7 +49,7 @@ The application consists of three main components:
 │  │   - Multi-threaded processing        │   │
 │  │   - CPU-aware workers                │   │
 │  │   - Progress tracking                │   │
-│  │   - 30,600+ records/second            │   │
+│  │   - 30,600+ records/second           │   │
 │  └──────────────────────────────────────┘   │
 │                    ↑ ↓                      │
 │  ┌──────────────────────────────────────┐   │
