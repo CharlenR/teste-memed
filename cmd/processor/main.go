@@ -110,7 +110,7 @@ func main() {
 	// ─────────────────────────────────────────────
 	fileLogger.Println("processor_started")
 
-	if err := processor.Run(ctx, svc, fileLogger); err != nil {
+	if err := processor.RunBulk(ctx, svc, fileLogger, 1000); err != nil {
 		fileLogger.Fatalf("processor_error=%v", err)
 	}
 

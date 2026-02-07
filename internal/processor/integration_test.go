@@ -16,9 +16,9 @@ import (
 // ServiceIntegrationMock for processor-service integration testing
 type ServiceIntegrationMock struct {
 	createCalls []struct {
-		userID   uint64
-		segType  string
-		name     string
+		userID  uint64
+		segType string
+		name    string
 	}
 	result repository.UpsertResult
 }
@@ -29,15 +29,25 @@ func (m *ServiceIntegrationMock) FindByUserID(ctx context.Context, userID uint64
 
 func (m *ServiceIntegrationMock) Upsert(ctx context.Context, s *models.Segmentation) (repository.UpsertResult, error) {
 	m.createCalls = append(m.createCalls, struct {
-		userID   uint64
-		segType  string
-		name     string
+		userID  uint64
+		segType string
+		name    string
 	}{
-		userID:   s.UserID,
-		segType:  s.SegmentationType,
-		name:     s.SegmentationName,
+		userID:  s.UserID,
+		segType: s.SegmentationType,
+		name:    s.SegmentationName,
 	})
 	return m.result, nil
+}
+
+func (m *ServiceIntegrationMock) BulkUpsert(ctx context.Context, s *[]models.Segmentation) ([]repository.UpsertResult, []error) {
+	results := make([]repository.UpsertResult, len(*s))
+	errors := make([]error, len(*s))
+	for i := range results {
+		results[i] = m.result
+		errors[i] = nil
+	}
+	return results, errors
 }
 
 // TestIntegration_ProcessorCallsService verifies processor -> service integration
@@ -111,9 +121,9 @@ func TestIntegration_ProcessorServiceMultipleRecords(t *testing.T) {
 
 	// Simulate multiple records being processed
 	records := []struct {
-		userID   uint64
-		segType  string
-		name     string
+		userID  uint64
+		segType string
+		name    string
 	}{
 		{100, "drug", "Drug1"},
 		{100, "specialty", "Spec1"},

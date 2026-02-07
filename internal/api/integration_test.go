@@ -18,6 +18,7 @@ import (
 type IntegrationMockRepository struct {
 	findByUserIDFunc func(ctx context.Context, userID uint64) ([]models.Segmentation, error)
 	upsertFunc       func(ctx context.Context, s *models.Segmentation) (repository.UpsertResult, error)
+	bulkUpsertFunc   func(ctx context.Context, s *[]models.Segmentation) ([]repository.UpsertResult, []error)
 }
 
 func (m *IntegrationMockRepository) FindByUserID(ctx context.Context, userID uint64) ([]models.Segmentation, error) {
@@ -32,6 +33,19 @@ func (m *IntegrationMockRepository) Upsert(ctx context.Context, s *models.Segmen
 		return m.upsertFunc(ctx, s)
 	}
 	return repository.UpsertInserted, nil
+}
+
+func (m *IntegrationMockRepository) BulkUpsert(ctx context.Context, s *[]models.Segmentation) ([]repository.UpsertResult, []error) {
+	results := make([]repository.UpsertResult, len(*s))
+	errors := make([]error, len(*s))
+	for i := range results {
+		results[i] = repository.UpsertInserted
+		errors[i] = nil
+	}
+	if m.bulkUpsertFunc != nil {
+		return m.bulkUpsertFunc(ctx, s)
+	}
+	return results, errors
 }
 
 // TestIntegration_HealthEndpoint tests health check through full stack

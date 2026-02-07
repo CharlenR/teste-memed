@@ -78,3 +78,10 @@ func (s *SegmentationService) Create(
 ) (repository.UpsertResult, error) {
 	return s.repo.Upsert(ctx, seg)
 }
+
+func (s *SegmentationService) BulkCreate(
+	ctx context.Context,
+	seg *[]models.Segmentation,
+) ([]repository.UpsertResult, []error) {
+	return s.repo.BulkUpsert(ctx, seg)
+}

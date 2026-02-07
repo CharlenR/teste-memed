@@ -5,7 +5,6 @@ import (
 	"log"
 
 	// "log"
-	"gorm.io/gorm/clause"
 
 	"segmentation-api/internal/models"
 	"segmentation-api/internal/repository"
@@ -88,20 +87,17 @@ func (r *segmentationRepository) Upsert(
 
 func (r *segmentationRepository) BulkUpsert(
 	ctx context.Context,
-	items []models.Segmentation,
-) error {
+	items *[]models.Segmentation,
+) ([]repository.UpsertResult, []error) {
 
-	return r.db.WithContext(ctx).
-		Clauses(clause.OnConflict{
-			Columns: []clause.Column{
-				{Name: "user_id"},
-				{Name: "segmentation_type"},
-				{Name: "segmentation_name"},
-			},
-			DoUpdates: clause.Assignments(map[string]interface{}{
-				"data":       gorm.Expr("VALUES(data)"),
-				"updated_at": time.Now().Unix(),
-			}),
-		}).
-		Create(&items).Error
+	results := make([]repository.UpsertResult, len(*items))
+	errors := make([]error, len(*items))
+
+	for i, item := range *items {
+		result, err := r.Upsert(ctx, &item)
+		results[i] = result
+		errors[i] = err
+	}
+
+	return results, errors
 }

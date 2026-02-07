@@ -56,6 +56,39 @@ func (m *E2EMockRepository) Upsert(ctx context.Context, s *models.Segmentation) 
 	return repository.UpsertInserted, nil
 }
 
+func (m *E2EMockRepository) BulkUpsert(ctx context.Context, s *[]models.Segmentation) ([]repository.UpsertResult, []error) {
+	m.upserts = append(m.upserts, *s...)
+
+	results := make([]repository.UpsertResult, len(*s))
+
+	for idx, seg := range *s {
+		if _, exists := m.database[seg.UserID]; !exists {
+			m.database[seg.UserID] = []models.Segmentation{}
+		}
+
+		// Check if already exists (for update scenario)
+		found := false
+		for i, existing := range m.database[seg.UserID] {
+			if existing.UserID == seg.UserID &&
+				existing.SegmentationType == seg.SegmentationType &&
+				existing.SegmentationName == seg.SegmentationName {
+				m.database[seg.UserID][i] = seg
+				results[idx] = repository.UpsertUpdated
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			// Insert new
+			m.database[seg.UserID] = append(m.database[seg.UserID], seg)
+			results[idx] = repository.UpsertInserted
+		}
+	}
+
+	return results, nil
+}
+
 // TestE2E_CompleteWorkflow tests full request-response cycle
 func TestE2E_CompleteWorkflow(t *testing.T) {
 	mockRepo := NewE2EMockRepository()

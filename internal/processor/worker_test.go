@@ -24,6 +24,23 @@ func (m *MockProcessorRepository) Upsert(ctx context.Context, s *models.Segmenta
 	return repository.UpsertInserted, nil
 }
 
+func (m *MockProcessorRepository) BulkUpsert(ctx context.Context, s *[]models.Segmentation) ([]repository.UpsertResult, []error) {
+	results := make([]repository.UpsertResult, len(*s))
+	errors := make([]error, len(*s))
+	for i := range results {
+		if m.upsertFunc != nil {
+			result, err := m.upsertFunc(ctx, &(*s)[i])
+			if err != nil {
+				errors[i] = err
+			}
+			results[i] = result
+		} else {
+			results[i] = repository.UpsertInserted
+		}
+	}
+	return results, errors
+}
+
 func (m *MockProcessorRepository) FindByUserID(ctx context.Context, userID uint64) ([]models.Segmentation, error) {
 	if m.findFunc != nil {
 		return m.findFunc(ctx, userID)
