@@ -15,5 +15,6 @@ const (
 
 type SegmentationRepository interface {
 	FindByUserID(ctx context.Context, userID uint64) ([]models.Segmentation, error)
-	Upsert(ctx context.Context, s *models.Segmentation) (UpsertResult, error) // retorna UpsertResult agora
+	Upsert(ctx context.Context, s *models.Segmentation) (UpsertResult, error)
+	BulkUpsert(ctx context.Context, s *[]models.Segmentation) ([]UpsertResult, []error)
 }

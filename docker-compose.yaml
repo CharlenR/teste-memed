@@ -75,7 +75,7 @@ services:
       resources:
         limits:
           cpus: '1'  
-          memory: '128M'    
+          memory: '256M'    
     profiles:
       - dev
 
@@ -97,8 +97,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'  
-          memory: '128M'
+          cpus: '4'  
+          memory: '2G'
     profiles:
       - dev
 
@@ -123,8 +123,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'  
-          memory: '2G'    
+          cpus: '8'  
+          memory: '4G'    
 
 
   adminer:

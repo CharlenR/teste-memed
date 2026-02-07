@@ -31,6 +31,10 @@ func (m *MockRepository) Upsert(ctx context.Context, s *models.Segmentation) (re
 	return repository.UpsertInserted, nil
 }
 
+func (m *MockRepository) BulkUpsert(ctx context.Context, s *[]models.Segmentation) ([]repository.UpsertResult, []error) {
+	return []repository.UpsertResult{repository.UpsertInserted}, nil
+}
+
 func TestGetUserSegmentations_Success(t *testing.T) {
 	// Setup mock data
 	mockData := []models.Segmentation{

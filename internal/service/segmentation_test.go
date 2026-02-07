@@ -13,6 +13,7 @@ import (
 type MockRepository struct {
 	findByUserIDFunc func(ctx context.Context, userID uint64) ([]models.Segmentation, error)
 	upsertFunc       func(ctx context.Context, s *models.Segmentation) (repository.UpsertResult, error)
+	bulkUpsertFunc   func(ctx context.Context, s *[]models.Segmentation) ([]repository.UpsertResult, []error)
 }
 
 func (m *MockRepository) FindByUserID(ctx context.Context, userID uint64) ([]models.Segmentation, error) {
@@ -27,6 +28,13 @@ func (m *MockRepository) Upsert(ctx context.Context, s *models.Segmentation) (re
 		return m.upsertFunc(ctx, s)
 	}
 	return repository.UpsertNoOp, nil
+}
+
+func (m *MockRepository) BulkUpsert(ctx context.Context, s *[]models.Segmentation) ([]repository.UpsertResult, []error) {
+	if m.bulkUpsertFunc != nil {
+		return m.bulkUpsertFunc(ctx, s)
+	}
+	return nil, nil
 }
 
 func TestNormalizeType(t *testing.T) {

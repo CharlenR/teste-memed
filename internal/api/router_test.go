@@ -27,6 +27,16 @@ func (m *MockRepository) Upsert(ctx context.Context, s *models.Segmentation) (re
 	return repository.UpsertInserted, nil
 }
 
+func (m *MockRepository) BulkUpsert(ctx context.Context, s *[]models.Segmentation) ([]repository.UpsertResult, []error) {
+	results := make([]repository.UpsertResult, len(*s))
+	errors := make([]error, len(*s))
+	for i := range results {
+		results[i] = repository.UpsertInserted
+		errors[i] = nil
+	}
+	return results, errors
+}
+
 func TestSetupRouter_RoutesDefined(t *testing.T) {
 	mockRepo := &MockRepository{}
 	svc := service.NewSegmentationService(mockRepo)

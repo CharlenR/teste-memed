@@ -33,6 +33,11 @@ func (m *RepositoryMock) Upsert(ctx context.Context, s *models.Segmentation) (re
 	return m.upsertResult, nil
 }
 
+func (m *RepositoryMock) BulkUpsert(ctx context.Context, s *[]models.Segmentation) ([]repository.UpsertResult, []error) {
+	m.upsertCalled = true
+	return []repository.UpsertResult{m.upsertResult}, nil
+}
+
 // TestIntegration_ServiceCallsRepositoryFindByUserID verifies service -> repository flow
 func TestIntegration_ServiceCallsRepositoryFindByUserID(t *testing.T) {
 	mockRepo := &RepositoryMock{
